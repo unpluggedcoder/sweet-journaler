@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+  :root {
+    --accent: #3b6ce0;
+    --accent-2: #2350c8;
+    --accent-soft: #e8effc;
+    --ink: #24292f;
+    --ink-soft: #57606a;
+    --line: #e4e8ee;
+    --bg: #f3f5f8;
+    --card: #ffffff;
+    --ok: #2da44e;
+    --ok-soft: #e6f6ea;
+    --warn: #d73a49;
+    --warn-soft: #fdeef0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                 "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.7;
+  }
+  .toolbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 24px;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  .toolbar .brand { font-weight: 600; font-size: 14px; color: var(--ink-soft); margin-right: auto; }
+  .btn {
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); color: var(--ink);
+    font-size: 13px; padding: 6px 14px; cursor: pointer;
+    transition: all .15s ease;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .page { max-width: 900px; margin: 28px auto 60px; padding: 0 20px; }
+
+  /* ---- hero header ---- */
+  .hero {
+    position: relative;
+    background: linear-gradient(120deg, #2350c8 0%, #3b6ce0 55%, #4f86f7 100%);
+    color: #fff; border-radius: 16px;
+    padding: 34px 40px 28px;
+    box-shadow: 0 8px 24px rgba(35,80,200,.22);
+  }
+  .hero-title { margin: 0 0 8px; font-size: 27px; letter-spacing: .5px; }
+  .hero-owner {
+    position: absolute; top: 30px; right: 36px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13.5px; color: rgba(255,255,255,.92);
+  }
+  .hero-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.45);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+  .hero-meta { margin: 2px 0; font-size: 14px; color: rgba(255,255,255,.88); }
+  .hero-chips { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero .tag, .hero .tag.ok, .hero .tag.okr, .hero .tag.carry, .hero .tag.warn {
+    background: rgba(255,255,255,.14); color: #fff;
+    border: 1px solid rgba(255,255,255,.38);
+    font-size: 12.5px; padding: 3px 13px; margin: 0;
+  }
+
+  .report-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(20,30,50,.06);
+    padding: 30px 40px 34px;
+    margin-top: 18px;
+  }
+  /* section bands: O objectives (h1) and daily section titles (h2) share one look.
+     NOTE: gradient endpoint must be explicit rgba — html2canvas renders the
+     `transparent` keyword as gray-black in captures. */
+  .report-card h1, .report-card h2 {
+    font-size: 19px; margin: 26px 0 12px; padding: 10px 16px;
+    background: linear-gradient(90deg, var(--accent-soft), rgba(232,239,252,0));
+    border-left: 4px solid var(--accent); border-radius: 6px; line-height: 1.4;
+  }
+  .report-card h1 { font-size: 20px; margin-top: 30px; }
+
+  /* objective bands: # O*: renders like the daily section band (light accent
+     gradient + left border), one visual level above the KR cards — bigger
+     type and a solid O badge carry the hierarchy */
+  .obj-band {
+    display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(90deg, var(--accent-soft), rgba(232,239,252,0));
+    border-left: 4px solid var(--accent); border-radius: 6px;
+    color: var(--ink); padding: 12px 16px; margin: 30px 0 14px;
+    font-size: 21px; font-weight: 600; line-height: 1.4;
+  }
+  .obj-badge {
+    flex: none; background: #fff1e0; color: #e8710a;
+    border: 1px solid #f7d7a8;
+    border-radius: 8px; padding: 3px 13px; font-size: 17px; font-weight: 700;
+  }
+
+  /* KR cards: each ## K*: section renders as a card, echoing the daily cards */
+  .kr-card {
+    background: #fbfcfe; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 20px 12px; margin: 14px 0;
+  }
+  .kr-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+             font-size: 15.5px; font-weight: 600; }
+  .kr-badge {
+    flex: none; background: var(--accent); color: #fff;
+    font-size: 12.5px; font-weight: 600; border-radius: 6px; padding: 2px 9px;
+  }
+  .kr-card p { color: #3d444d; font-size: 14px; }
+  .kr-card ul, .kr-card ol { font-size: 14px; }
+  /* 关键进展: standalone highlight for the KR's core progress event */
+  .kr-key {
+    display: flex; align-items: baseline; gap: 10px;
+    background: linear-gradient(90deg, var(--ok-soft), rgba(230,246,234,0));
+    border-left: 3px solid var(--ok); border-radius: 8px;
+    padding: 8px 14px; margin: 10px 0; font-size: 14px;
+  }
+  .kr-key-badge {
+    flex: none; background: var(--ok); color: #fff;
+    font-size: 11.5px; font-weight: 600; border-radius: 6px; padding: 1px 9px;
+  }
+  .report-card h3 { font-size: 15.5px; margin: 18px 0 8px; color: var(--ink); }
+  .report-card h4 { font-size: 14px; margin: 14px 0 6px; color: var(--ink-soft); }
+  .report-card p { margin: 8px 0; }
+  .report-card ul, .report-card ol { margin: 8px 0; padding-left: 24px; }
+  .report-card li { margin: 4px 0; }
+  .report-card code {
+    background: #f0f2f5; border-radius: 4px; padding: 1px 6px;
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .88em;
+  }
+  .report-card pre {
+    background: #f6f8fa; border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 16px; overflow-x: auto;
+  }
+  .report-card pre code { background: none; padding: 0; }
+  .report-card blockquote {
+    margin: 10px 0; padding: 6px 16px;
+    border-left: 4px solid var(--line); color: var(--ink-soft);
+    background: #fafbfc; border-radius: 0 8px 8px 0;
+  }
+  .report-card table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  .report-card th, .report-card td { border: 1px solid var(--line); padding: 7px 12px; text-align: left; }
+  .report-card th { background: var(--accent-soft); font-weight: 600; }
+  .report-card tr:nth-child(even) td { background: #fafbfd; }
+  .report-card img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+  .report-card hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+  .report-card a { color: var(--accent); }
+  .footer { text-align: center; color: #9aa4b2; font-size: 12px; margin-top: 18px; }
+
+  /* ---- numbered progress cards ---- */
+  ol.cards { list-style: none; padding: 0 !important; counter-reset: card; }
+  li.card {
+    counter-increment: card;
+    background: #fbfcfe; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px 14px 58px; margin: 12px 0 !important; position: relative;
+  }
+  li.card::before {
+    content: counter(card);
+    position: absolute; left: 18px; top: 17px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 13.5px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-title { font-size: 15.5px; font-weight: 600; }
+  .card-title .tag { vertical-align: 2px; }
+  .card-body { margin-top: 6px; color: #3d444d; font-size: 14px; }
+  .card-body p { margin: 4px 0; }
+  .card-body ul { margin: 4px 0; padding-left: 20px; }
+  .card-foot { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 12.5px; }
+  .card-foot .tag { margin-left: 0; }
+
+  /* ---- chips ---- */
+  .tag {
+    display: inline-block; font-size: 11.5px; line-height: 1.6; padding: 1px 10px;
+    border-radius: 999px; background: #eef1f5; color: var(--ink-soft);
+    border: 1px solid var(--line); margin-left: 6px; vertical-align: 1px;
+    font-weight: 500;
+  }
+  .tag.okr { background: var(--accent-soft); color: var(--accent); border-color: #c8d8f7; }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: #bfe6cb; }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: #f5c6cd; }
+  .tag.carry { background: #eef2fd; color: #4a63c8; border-color: #d3ddf8; }
+  .chip-row { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-row .tag { margin-left: 0; }
+
+  /* ---- plan rows: GFM task syntax renders as designed rows, not checkboxes.
+     Plan items are to-dos by nature — an empty checkbox says nothing, so
+     open items get an accent arrow row and done carryovers a green check row. */
+  .report-card li.plan {
+    list-style: none; margin: 8px 0 8px -24px;
+    display: flex; align-items: baseline; gap: 11px;
+    background: #fbfcfe; border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 15px;
+  }
+  .plan-ico {
+    flex: none; width: 21px; height: 21px; border-radius: 7px;
+    background: var(--accent-soft); color: var(--accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12.5px; font-weight: 700; transform: translateY(4px);
+  }
+  /* Keep the whole plan text as ONE flex item so it wraps as normal inline
+     flow; without this each text/strong/code run becomes its own flex item
+     and shrinks/wraps independently (scrambled 双/库, 替/换 columns). */
+  .report-card li.plan .plan-text { flex: 1 1 auto; min-width: 0; }
+
+  /* ---- KR progress bar rendered from 进度[**45%**] ---- */
+  .kr-progress { display: inline-flex; align-items: center; gap: 8px; margin-left: 8px; vertical-align: 1px; }
+  .kr-bar {
+    position: relative; display: inline-block;
+    width: 130px; height: 8px; border-radius: 999px;
+    background: #e9edf3; overflow: hidden;
+  }
+  /* single-value fill: yellow -> green gradation spans the full track (130px)
+     and is clipped by the fill width, so low progress reads amber, full green */
+  .kr-fill { display: block; height: 100%;
+             background: linear-gradient(90deg, #f7c948 0%, #a5cf4f 55%, #2da44e 100%);
+             background-size: 130px 100%; }
+  /* two-value form: amber base = last month, green = this month's gain,
+     red = regression, gray track = remaining */
+  .kr-seg { position: absolute; top: 0; height: 100%; }
+  .kr-seg.base { background: #f2c14e; }
+  .kr-seg.gain { background: linear-gradient(90deg, #5cb974, #2da44e); }
+  .kr-seg.loss { background: #e05561; }
+  .kr-pct { font-size: 12.5px; font-weight: 600; color: var(--accent); }
+  .kr-delta {
+    font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px;
+  }
+  .kr-delta.up { background: var(--ok-soft); color: var(--ok); }
+  .kr-delta.down { background: var(--warn-soft); color: var(--warn); }
+  .kr-delta.flat { background: #eef1f5; color: var(--ink-soft); }
+
+  /* ---- capture mode: compact clone rendered off-screen for Copy-as-image ---- */
+  .capture-stage { position: fixed; left: -10000px; top: 0; width: 820px; background: #f3f5f8; padding: 14px; }
+  .capture-stage .hero { border-radius: 12px; padding: 24px 28px 20px; box-shadow: none; }
+  .capture-stage .hero-title { font-size: 22px; }
+  .capture-stage .hero-owner { top: 22px; right: 26px; }
+  .capture-stage .report-card {
+    box-shadow: none; border-radius: 12px; padding: 22px 26px; font-size: 14px; margin-top: 12px;
+  }
+  .capture-stage h2 { font-size: 16.5px; margin: 18px 0 8px; }
+  .capture-stage h3 { font-size: 14.5px; }
+  .capture-stage .obj-band { padding: 9px 14px; font-size: 18px; margin: 20px 0 10px; }
+
+  /* ---- preview modal ---- */
+  .modal-mask {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: rgba(15,23,42,.45);
+    align-items: center; justify-content: center;
+  }
+  .modal-mask.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; max-width: min(760px, 92vw);
+    max-height: 88vh; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 12px 40px rgba(15,23,42,.25);
+  }
+  .modal header { padding: 14px 20px; font-weight: 600; border-bottom: 1px solid var(--line); }
+  .modal .body { padding: 16px 20px; overflow: auto; background: #f6f8fa; }
+  .modal .body img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background:#fff; }
+  .modal footer {
+    padding: 12px 20px; display: flex; gap: 10px; justify-content: flex-end;
+    border-top: 1px solid var(--line);
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 9px 18px; border-radius: 8px;
+    font-size: 13px; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.ok { background: var(--ok); }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="brand">📋 工作日志 · Work Journal</span>
+    <button class="btn" id="btn-copy-text">复制文本</button>
+    <button class="btn primary" id="btn-copy-image">复制为图片</button>
+  </div>
+
+  <div class="page">
+    <div id="report">
+      <div class="hero">
+{{HERO}}
+      </div>
+      <div class="report-card">
+{{CONTENT}}
+      </div>
+    </div>
+    <div class="footer">generated by work-journaler · {{GENERATED_AT}}</div>
+  </div>
+
+  <div class="modal-mask" id="preview-mask">
+    <div class="modal">
+      <header>图片预览 — 确认复制到剪贴板？</header>
+      <div class="body"><img id="preview-img" alt="report preview"></div>
+      <footer>
+        <button class="btn" id="btn-cancel">取消</button>
+        <button class="btn" id="btn-download">下载 PNG</button>
+        <button class="btn primary" id="btn-confirm">确认复制</button>
+      </footer>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>{{HTML2CANVAS}}</script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let capturedCanvas = null;
+
+  function toast(msg, ok) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (ok ? " ok" : "");
+    setTimeout(() => (t.className = "toast"), 2200);
+  }
+
+  // ---- Copy as text: the rendered plain text of the report ----
+  $("btn-copy-text").addEventListener("click", async () => {
+    const text = $("report").innerText.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("文本已复制到剪贴板 ✓", true);
+    } catch (e) {
+      // fallback for environments without async clipboard
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      toast(ok ? "文本已复制到剪贴板 ✓" : "复制失败：" + e.message, ok);
+    }
+  });
+
+  // ---- Copy as image: render compact clone -> preview -> confirm -> clipboard ----
+  $("btn-copy-image").addEventListener("click", async () => {
+    const btn = $("btn-copy-image");
+    btn.disabled = true;
+    btn.textContent = "生成中…";
+    try {
+      const stage = document.createElement("div");
+      stage.className = "capture-stage";
+      const clone = $("report").cloneNode(true);
+      clone.removeAttribute("id");
+      stage.appendChild(clone);
+      document.body.appendChild(stage);
+      capturedCanvas = await html2canvas(stage, {
+        scale: 2,
+        backgroundColor: "#f3f5f8",
+        logging: false,
+      });
+      stage.remove();
+      $("preview-img").src = capturedCanvas.toDataURL("image/png");
+      $("preview-mask").classList.add("show");
+    } catch (e) {
+      toast("生成图片失败：" + e.message, false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "复制为图片";
+    }
+  });
+
+  $("btn-cancel").addEventListener("click", () => $("preview-mask").classList.remove("show"));
+  $("preview-mask").addEventListener("click", (e) => {
+    if (e.target === $("preview-mask")) $("preview-mask").classList.remove("show");
+  });
+
+  $("btn-confirm").addEventListener("click", () => {
+    if (!capturedCanvas) return;
+    capturedCanvas.toBlob(async (blob) => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        $("preview-mask").classList.remove("show");
+        toast("图片已复制到剪贴板 ✓", true);
+      } catch (e) {
+        toast("剪贴板写入失败（可用「下载 PNG」代替）：" + e.message, false);
+      }
+    }, "image/png");
+  });
+
+  $("btn-download").addEventListener("click", () => {
+    if (!capturedCanvas) return;
+    const a = document.createElement("a");
+    a.download = document.title.replace(/[\\/:*?"<>|]/g, "_") + ".png";
+    a.href = capturedCanvas.toDataURL("image/png");
+    a.click();
+    toast("已开始下载 PNG", true);
+  });
+})();
+</script>
+</body>
+</html>
