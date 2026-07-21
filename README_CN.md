@@ -15,7 +15,7 @@
 
 ## 这是什么
 
-一个 Claude Code Skill。每天下班前丢一句「写日报」，它就会：
+一个 Agent Skill（SKILL.md 开放标准——生于 Claude Code，也能入住 Codex、Cursor、Gemini CLI 等）。每天下班前丢一句「写日报」，它就会：
 
 1. **翻旧账** —— 扫描本机 8 家 AI 编程工具的会话记录（Claude Code、Qoder、Cursor、GitHub Copilot、Aone Copilot、Codex、Cline、OpenCode）。你和 AI 的每一次深夜拉扯，都是今天的素材。
 2. **去油提纯** —— 站在领导视角回答三个问题：核心工作动没动、落了什么价值、有什么风险。至于改名、重构、修 lint 这些「努力过的痕迹」？无情丢弃。
@@ -44,13 +44,31 @@
 
 ## 快速上手
 
-把仓库放进技能目录：
+**推荐：一键安装。** [skills CLI](https://github.com/vercel-labs/skills) 会自动探测你本机装了哪些 AI 编程工具（Claude Code、Codex、Cursor、OpenCode……35+ 家），一条命令全部装齐：
+
+```bash
+npx skills add unpluggedcoder/sweet-journaler
+```
+
+**手动安装**：克隆进对应工具的技能目录即可，例如 Claude Code：
 
 ```bash
 git clone https://github.com/unpluggedcoder/sweet-journaler.git ~/.claude/skills/work-journaler
 ```
 
-然后在 Claude Code 里像点单一样：
+| 工具 | 个人级目录 | 项目级目录 |
+|---|---|---|
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| Codex CLI | `~/.codex/skills/` | `.codex/skills/` |
+| Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
+| Cursor | — | `.cursor/skills/` |
+| 跨工具共享目录 | `~/.agents/skills/` | `.agents/skills/` |
+
+还没原生支持技能的工具（Cline、Qoder、Aone Copilot……）也有兜底吃法：仓库克隆到任意位置，在该工具的指令文件（`AGENTS.md`、`.clinerules` 等）里加一句「当用户要求生成工作日报/月报时，读取并遵循 `<克隆路径>/SKILL.md`」。
+
+> 依赖只有 `python3`。技能会读取各 AI 工具的本地会话存储，沙箱较严的工具（如 Codex 默认沙箱）首次运行时请批准相应目录的读取。
+
+然后像在奶茶店点单一样：
 
 ```text
 写日报               # 今天的日报

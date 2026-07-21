@@ -15,7 +15,7 @@ English ｜ [简体中文](README_CN.md)
 
 ## What is this
 
-A Claude Code Skill. Toss it a "write my daily report" before you log off, and it will:
+An Agent Skill (the open SKILL.md standard — born in Claude Code, equally at home in Codex, Cursor or Gemini CLI). Toss it a "write my daily report" before you log off, and it will:
 
 1. **Dig up the receipts** — scan the local chat histories of 8 AI coding tools (Claude Code, Qoder, Cursor, GitHub Copilot, Aone Copilot, Codex, Cline, OpenCode). Every late-night argument you had with an AI is today's raw material.
 2. **Skim the fat** — rewrite everything from your manager's point of view: is the core work moving, what value landed, what's at risk. Renames, refactors and lint fixes — the "proof of effort" — are lovingly discarded.
@@ -44,13 +44,31 @@ Three iron rules, at any sugar level:
 
 ## Quick start
 
-Drop the repo into your skills directory:
+**Recommended: one command, every agent.** The [skills CLI](https://github.com/vercel-labs/skills) auto-detects the AI coding tools on your machine (Claude Code, Codex, Cursor, OpenCode… 35+ of them) and installs the skill into all of them at once:
+
+```bash
+npx skills add unpluggedcoder/sweet-journaler
+```
+
+**Manual install**: clone into your tool's skills directory, e.g. for Claude Code:
 
 ```bash
 git clone https://github.com/unpluggedcoder/sweet-journaler.git ~/.claude/skills/work-journaler
 ```
 
-Then order away in Claude Code:
+| Tool | Personal | Project |
+|---|---|---|
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| Codex CLI | `~/.codex/skills/` | `.codex/skills/` |
+| Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
+| Cursor | — | `.cursor/skills/` |
+| Shared cross-agent dir | `~/.agents/skills/` | `.agents/skills/` |
+
+Tools without native skill support (Cline, Qoder, Aone Copilot…) get the fallback recipe: clone the repo anywhere, then add one line to the tool's instruction file (`AGENTS.md`, `.clinerules`, …): "When the user asks for a work journal / daily / monthly report, read and follow `<clone-path>/SKILL.md`."
+
+> The only dependency is `python3`. The skill reads other AI tools' local session storage, so on strictly sandboxed agents (e.g. Codex's default sandbox) approve the directory reads on first run.
+
+Then order away in your agent of choice:
 
 ```text
 write my daily report          # today's report
