@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🍬 Sweet Journaler (work-journaler)
+# 🍬 Sweet Journaler
 
-**Brews your AI-coding sessions into daily reports & monthly OKR reports your boss actually reads.**
+**Brews your vibe-coding progress into daily reports & monthly OKR reports for your boss.**
 
 English ｜ [简体中文](README_CN.md)
 
@@ -30,11 +30,11 @@ Order like you're at a bubble-tea shop: "sugar-free daily", "monthly report, 30%
 
 | Sweetness | Serves | Tasting notes |
 |---|---|---|
-| **Sugar-free 0%** | Future you | Straight espresso. The full, honest log — renames, learning sessions and all. Future you remembers nothing, so everything gets written down |
+| **Sugar-free 0%** | Future you | Straight espresso. The full, honest log of the day's hardcore work — renames, learning sessions and all. Future you remembers nothing, so everything gets written down |
 | **30% sugar** | A technical manager | Lightly sweetened. Technical terms and implementation notes survive; connoisseurs will taste the layers |
 | **Half sugar 50%** (default) | A regular manager | House recipe. One line of outcome + one line of quantified value per item, jargon translated into human |
-| **70% sugar** | A manager who has never seen code | Silky oat-milk smooth. Only "what shipped and what it means for the business" — "P95 340→180ms" becomes "checkout feels faster and steadier" |
-| **Double sugar 200%** | A day of, let's say, *strategic recharging* | Dignity mode. **No facts are invented** — small wins simply get a tuxedo: synergize, leverage, operationalize, close the loop, drive alignment, build the flywheel |
+| **Full sugar 100%** | A manager who has never seen code | Silky oat-milk smooth. Only "what shipped and what it means for the business" — "P95 340→180ms" becomes "checkout feels faster and steadier" |
+| **Double sugar 200%** | Everyone has *those* days | Dignity mode. **No facts are invented** — small wins simply get a tuxedo: synergize, leverage, operationalize, close the loop, drive alignment, build the flywheel |
 
 Three iron rules, at any sugar level:
 
@@ -97,7 +97,8 @@ python3 scripts/md_to_html.py example/daily-2026-07-16.en.md -o /tmp/demo.html
 
 ## Disclaimer
 
-- This README is for entertainment purposes; the skill, inconveniently, actually works;
+- This Skill is for entertainment purposes; inconveniently, it actually works;
 - If your reports become so good that "keep this standard going forward" becomes a formal requirement, that's on you;
+- The HTML template is yours to restyle to taste;
 - Should double-sugar output ("synergize the flywheel") cause discomfort among coworkers, please reduce sugar;
 - Sugar-free mode may contain real amounts of work. Sobering. Use with caution.

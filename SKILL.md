@@ -1,6 +1,6 @@
 ---
 name: work-journaler
-description: Generate or update work journals (工作日报 / 月度 OKR 月报) by mining the user's local AI-coding conversation histories (Claude Code, Qoder, Cursor, Copilot, Aone Copilot, Codex, Cline, OpenCode) and producing confirmed Markdown + styled HTML reports under ~/work_journals. Supports a 甜度/含糖量 (sweetness) knob — 无糖/三分糖/半糖/七分糖/双份糖 — controlling how abstract vs. detailed the reporting reads. Reports are written in 中文 or English; the output language is confirmed with the user on first run, defaulting to the language the skill was triggered in. Use this skill whenever the user asks to generate, write, or update a work journal, daily report, work log, monthly report, or OKR progress — including phrases like 生成日报 / 写日报 / 更新工作日志 / 月报 / OKR 月报 / 无糖日报 / work journal / daily journal / monthly OKR, even if they don't mention files or formats.
+description: Generate or update work journals (工作日报 / 月度 OKR 月报) by mining the user's local AI-coding conversation histories (Claude Code, Qoder, Cursor, Copilot, Aone Copilot, Codex, Cline, OpenCode) and producing confirmed Markdown + styled HTML reports under ~/work_journals. Supports a 甜度/含糖量 (sweetness) knob — 无糖/三分糖/半糖/正常糖/双份糖 — controlling how abstract vs. detailed the reporting reads. Reports are written in 中文 or English; the output language is confirmed with the user on first run, defaulting to the language the skill was triggered in. Use this skill whenever the user asks to generate, write, or update a work journal, daily report, work log, monthly report, or OKR progress — including phrases like 生成日报 / 写日报 / 更新工作日志 / 月报 / OKR 月报 / 无糖日报 / work journal / daily journal / monthly OKR, even if they don't mention files or formats.
 ---
 
 # Work Journaler
@@ -84,8 +84,8 @@ Read the digest, then delete it if it was written to /tmp.
 | 无糖 / 零糖 | 自己（全量工作留档，供未来抽样回顾） | 不受 1-2 句限制，呈现当天真实工作细节：重构/重命名等杂务也记（可多件合并一行），学习会话照记。仍要总结提炼、忌流水账；关键缩写仍须中英文全称说明——未来的自己也会忘 |
 | 三分糖 / 少糖 | 技术型领导（熟悉技术细节） | 领导视角过滤照旧，但可适当保留技术术语与实现要点，常见技术缩写不必展开，每项可放宽到 2-3 句 |
 | 五分糖 / 半糖（默认） | 一般领导 | 现行标准：关键进展 + 量化价值，每项 1-2 句，避免技术细节，复杂缩写替换或注释 |
-| 七分糖 ~ 正常糖 | 完全不懂技术的领导 | 高度概括、宏观说大白话：只讲"做成了什么、对业务意味着什么"，不用任何术语与缩写，量化数字翻译成业务影响（"下单更快更稳"而非 "P95 340→180ms"） |
-| 双份糖（>100%） | 摸鱼的一天 | 今日产出太少或没有核心进展时的体面模式：**不编造事实**，但用互联网黑话把小事讲出声势——赋能、抓手、闭环、拉通、对齐、沉淀、组合拳、颗粒度、心智、反哺，任君调味 |
+| 正常糖（100%，旧称七分糖） | 完全不懂技术的领导 | 高度概括、宏观说大白话：只讲"做成了什么、对业务意味着什么"，不用任何术语与缩写，量化数字翻译成业务影响（"下单更快更稳"而非 "P95 340→180ms"） |
+| 双份糖（200%） | 摸鱼的一天 | 今日产出太少或没有核心进展时的体面模式：**不编造事实**，但用互联网黑话把小事讲出声势——赋能、抓手、闭环、拉通、对齐、沉淀、组合拳、颗粒度、心智、反哺，任君调味 |
 
 无论甜度多少，三条不变：**事实与数字不可编造**；报告结构（hero/卡片/计划行/
 OKR 对齐）不变；**甜度本身绝不写进报告**——一份"双份糖"日报被领导看出配方
