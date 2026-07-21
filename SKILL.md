@@ -1,12 +1,13 @@
 ---
 name: work-journaler
-description: Generate or update work journals (工作日报 / 月度 OKR 月报) by mining the user's local AI-coding conversation histories (Claude Code, Qoder, Cursor, Copilot, Aone Copilot, Codex, Cline, OpenCode) and producing confirmed Markdown + styled HTML reports under ~/work_journals. Supports a 甜度/含糖量 (sweetness) knob — 无糖/三分糖/半糖/七分糖/双份糖 — controlling how abstract vs. detailed the reporting reads. Use this skill whenever the user asks to generate, write, or update a work journal, daily report, work log, monthly report, or OKR progress — including phrases like 生成日报 / 写日报 / 更新工作日志 / 月报 / OKR 月报 / 无糖日报 / work journal / daily journal / monthly OKR, even if they don't mention files or formats.
+description: Generate or update work journals (工作日报 / 月度 OKR 月报) by mining the user's local AI-coding conversation histories (Claude Code, Qoder, Cursor, Copilot, Aone Copilot, Codex, Cline, OpenCode) and producing confirmed Markdown + styled HTML reports under ~/work_journals. Supports a 甜度/含糖量 (sweetness) knob — 无糖/三分糖/半糖/七分糖/双份糖 — controlling how abstract vs. detailed the reporting reads. Reports are written in 中文 or English; the output language is confirmed with the user on first run, defaulting to the language the skill was triggered in. Use this skill whenever the user asks to generate, write, or update a work journal, daily report, work log, monthly report, or OKR progress — including phrases like 生成日报 / 写日报 / 更新工作日志 / 月报 / OKR 月报 / 无糖日报 / work journal / daily journal / monthly OKR, even if they don't mention files or formats.
 ---
 
 # Work Journaler
 
 Turn the user's AI-assistant conversation history into two kinds of work
-reports, written in Chinese (technical terms stay in English):
+reports, written in the configured output language — 中文 or English, see
+Step 0 (technical terms stay in English either way):
 
 | Type | Output paths |
 |------|--------------|
@@ -17,19 +18,30 @@ The invariant that matters most: **markdown first, user confirms, HTML last.**
 The journal is an outward-facing artifact the user pastes into review tools —
 never publish (write the HTML for) content the user hasn't approved.
 
-## Step 0 — Journal owner (first run only)
+## Step 0 — Journal owner & output language (first run only)
 
-Read `~/work_journals/config.json` (create the dir if needed). If it has an
-`author`, use it. If the file or key is missing, ask the user once for the
-journal owner/author name, then save it:
+Read `~/work_journals/config.json` (create the dir if needed). If it has both
+`author` and `language`, use them. Ask once for whichever is missing, then
+save:
 
 ```json
-{"author": "****"}
+{"author": "****", "language": "zh"}
 ```
 
-Every journal carries `作者：{author}` as the first line under the H1 — the
-renderer shows it top-left in the hero band with an avatar. When testing with
-a sandboxed journal root, the config lives in that sandbox root instead.
+- **Author**: the journal owner/author name. Every journal carries
+  `作者：{author}` (en: `Author: {author}`) as the first line under the H1 —
+  the renderer shows it top-left in the hero band with an avatar.
+- **Language** (`zh` or `en`): the language reports are written in. **Never
+  silently pick one on first run — always confirm with the user**, with the
+  default option being the language of the message that triggered the skill
+  ("写个日报" → default 中文; "generate my daily report" → default English).
+  One question, e.g.: 日报/月报用什么语言输出？默认中文（与你的提问语言一致）.
+  On later runs use the saved value; an explicit per-run request ("这份用英文
+  写" / "in English please") overrides for that run without changing the
+  config — update `language` only when the user says the change is permanent.
+
+When testing with a sandboxed journal root, the config lives in that sandbox
+root instead.
 
 ## Step 1 — Establish the period
 
@@ -78,6 +90,31 @@ Read the digest, then delete it if it was written to /tmp.
 无论甜度多少，三条不变：**事实与数字不可编造**；报告结构（hero/卡片/计划行/
 OKR 对齐）不变；**甜度本身绝不写进报告**——一份"双份糖"日报被领导看出配方
 就不甜了。
+
+## Output language (`language: en`)
+
+The templates below are written for `zh`. With `language: en`, keep the exact
+same structure and markers, translated as follows — the converter recognizes
+both sets and switches the HTML chrome (toolbar/modal) to English
+automatically:
+
+| zh | en |
+|---|---|
+| `# 工作日报 YYYY-MM-DD` | `# Daily Report YYYY-MM-DD` |
+| `# OKR 月报 · YYYY-MM` | `# OKR Monthly Report · YYYY-MM` |
+| `作者：` | `Author:` |
+| `## 今日进展` / `## 下一步计划` | `## Today's Progress` / `## Next Steps` |
+| `# 其他进展` | `# Other Progress` |
+| `进度[20% → **45%**]` | `Progress[20% → **45%**]` |
+| `关键进展：` | `Key progress:` |
+| `[[已完成]] [[承接 MM-DD 计划]] [[风险]] [[阻塞]] [[学习]]` | `[[Done]] [[Carried from MM-DD]] [[Risk]] [[Blocked]] [[Learning]]` |
+| `[[今日进展 N 项]] [[昨日计划完成 X/Y]] [[顺延 N 项]]` | `[[Progress: N items]] [[Yesterday's plan X/Y]] [[Carried over: N]]` |
+| `[[KR 达标 X/Y]] [[平均进度 Z%]] [[风险 N 项]]` | `[[KRs on track X/Y]] [[Avg progress Z%]] [[Risks: N]]` |
+
+Everything else carries over unchanged: the `O*:`/`K*:` heading prefixes, all
+structure rules, and the 甜度 knob — 双份糖 in English just swaps 互联网黑话
+for corporate English (synergize, leverage, operationalize, close the loop,
+drive alignment…). Technical terms stay in English in both languages.
 
 ## Step 3 — Distill for the leader's view
 

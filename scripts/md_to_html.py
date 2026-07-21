@@ -14,7 +14,12 @@ Journal-aware rendering conventions (see SKILL.md):
 - - [ ] / - [x]                           -> real styled checkboxes
 - 进度[**45%**]                            -> visual progress bar
 
-Usage: md_to_html.py input.md [-o output.html] [--title "..."]
+English reports are first-class: [[Done]]/[[Risk]]/[[Carried …]] chips,
+Progress[30% → **55%**] bars and "Key progress:" highlights are recognized,
+and the HTML chrome (toolbar/modal/toasts) switches to English automatically
+(auto-detected from the markdown's CJK density; force with --lang).
+
+Usage: md_to_html.py input.md [-o output.html] [--title "..."] [--lang zh|en]
 """
 
 from __future__ import annotations
@@ -33,6 +38,30 @@ RAW_TAGS = r"span|font|mark|b|strong|i|em|u|sub|sup|br|img"
 CHIP_ONLY = re.compile(r"^\s*(\[\[[^\[\]]+\]\]\s*)+$")
 HEADING = re.compile(r"^#{1,4}\s")
 LIST_ITEM = re.compile(r"^(\s*)([-*]|\d+\.)\s+(.*)")
+CJK = re.compile(r"[一-鿿]")
+# 关键进展： / Key progress: — standalone highlight line inside a KR card
+KEY_LINE = re.compile(r"^(关键进展|Key\s+(?:progress|win|result))\s*[:：]\s*(.*)", re.I)
+
+# English reports get English HTML chrome (toolbar, modal, toasts). Applied to
+# the template only — never to report content. Ordered longest-first so that
+# substrings ("下载 PNG" inside "已开始下载 PNG") don't clobber longer rules.
+EN_UI = [
+    ("剪贴板写入失败（可用「下载 PNG」代替）：", "Clipboard write failed (use Download PNG instead): "),
+    ("图片预览 — 确认复制到剪贴板？", "Image preview — copy to clipboard?"),
+    ("文本已复制到剪贴板 ✓", "Text copied to clipboard ✓"),
+    ("图片已复制到剪贴板 ✓", "Image copied to clipboard ✓"),
+    ("已开始下载 PNG", "PNG download started"),
+    ("生成图片失败：", "Image render failed: "),
+    ("复制失败：", "Copy failed: "),
+    ("生成中…", "Rendering…"),
+    ("复制为图片", "Copy as image"),
+    ("复制文本", "Copy text"),
+    ("确认复制", "Confirm copy"),
+    ("下载 PNG", "Download PNG"),
+    ("取消", "Cancel"),
+    ("📋 工作日志 · Work Journal", "📋 Work Journal"),
+    ('lang="zh-CN"', 'lang="en"'),
+]
 
 # --------------------------------------------------------------- image inline
 
@@ -57,12 +86,14 @@ def chip_html(label: str) -> str:
     label = label.strip()
     if re.match(r"OKR\b", label, re.I):
         body = re.sub(r"^OKR\s*[:：]\s*", "", label, flags=re.I)
-        return f'<span class="tag okr">对应 OKR：{body}</span>'
-    if re.search(r"已完成|完成 ?✓|达成|已上线|全绿", label):
+        prefix = "对应 OKR：" if CJK.search(body) else "OKR · "
+        return f'<span class="tag okr">{prefix}{body}</span>'
+    if re.search(r"已完成|完成 ?✓|达成|已上线|全绿", label) or \
+       re.search(r"\b(done|completed|shipped|achieved|launched)\b|all green", label, re.I):
         cls = "tag ok"
-    elif re.search(r"风险|阻塞|延期|未达|blocked", label, re.I):
+    elif re.search(r"风险|阻塞|延期|未达|\b(risk|blocked|delayed?|missed)\b", label, re.I):
         cls = "tag warn"
-    elif re.search(r"承接|顺延|carry", label, re.I):
+    elif re.search(r"承接|顺延|carr(y|ied)", label, re.I):
         cls = "tag carry"
     else:
         cls = "tag"
@@ -105,11 +136,12 @@ def render_inline(text: str, base_dir: Path) -> str:
     text = re.sub(r"(?<![\w_])_([^_\s][^_]*?)_(?![\w_])", r"<em>\1</em>", text)
     text = re.sub(r"~~([^~]+)~~", r"<del>\1</del>", text)
 
-    # 进度[**45%**] or 进度[60% → **90%**] -> progress bar; the two-value form
-    # renders month-over-month segments: amber = last month's base, green =
+    # 进度[**45%**] / Progress[60% → **90%**] -> progress bar; the two-value
+    # form renders month-over-month segments: amber = last month's base, green =
     # this month's gain (red = regression), gray = remaining, plus a delta badge.
     def bar(m: re.Match) -> str:
-        inner = re.sub(r"</?strong>", "", m.group(1))
+        inner = re.sub(r"</?strong>", "", m.group(2))
+        flat_label = "持平" if m.group(1) == "进度" else "±0"
         nums = [max(0, min(100, int(n))) for n in re.findall(r"(\d{1,3})\s*%", inner)]
         if not nums:
             return m.group(0)
@@ -117,7 +149,7 @@ def render_inline(text: str, base_dir: Path) -> str:
         prev = nums[0] if len(nums) > 1 else None
         if prev is None or prev == cur:
             segs = f'<span class="kr-fill" style="width:{cur}%"></span>'
-            badge = '<span class="kr-delta flat">持平</span>' if prev is not None else ""
+            badge = f'<span class="kr-delta flat">{flat_label}</span>' if prev is not None else ""
         elif cur > prev:
             segs = (f'<span class="kr-seg base" style="width:{prev}%"></span>'
                     f'<span class="kr-seg gain" style="left:{prev}%;width:{cur - prev}%"></span>')
@@ -129,7 +161,7 @@ def render_inline(text: str, base_dir: Path) -> str:
         return (f'<span class="kr-progress"><span class="kr-bar">{segs}</span>'
                 f'<span class="kr-pct">{cur}%</span>{badge}</span>')
 
-    text = re.sub(r"(?:\s*[—–-]+\s*)?进度\s*[\[［]([^\]］]*%[^\]］]*)[\]］]", bar, text)
+    text = re.sub(r"(?:\s*[—–-]+\s*)?(进度|[Pp]rogress)\s*[\[［]([^\]］]*%[^\]］]*)[\]］]", bar, text)
 
     for i, raw in enumerate(raws):
         text = text.replace(f"\x00R{i}\x00", raw)
@@ -334,16 +366,17 @@ def render_blocks(md: str, base_dir: Path) -> str:
             i += 1
             continue
 
-        key = re.match(r"^关键进展\s*[:：]\s*(.*)", stripped)
+        key = KEY_LINE.match(stripped)
         if key:  # standalone highlight for the KR's core progress event
-            out.append(f'<div class="kr-key"><span class="kr-key-badge">关键进展</span>'
-                       f'<span>{render_inline(key.group(1), base_dir)}</span></div>')
+            out.append(f'<div class="kr-key"><span class="kr-key-badge">{key.group(1)}</span>'
+                       f'<span>{render_inline(key.group(2), base_dir)}</span></div>')
             i += 1
             continue
 
         para = [stripped]
         while (i + 1 < len(lines) and lines[i + 1].strip()
-               and not re.match(r"^(\s*([-*]|\d+\.)\s|#{1,4}\s|>|```|(-{3,})$|关键进展\s*[:：])", lines[i + 1].strip())
+               and not re.match(r"^(\s*([-*]|\d+\.)\s|#{1,4}\s|>|```|(-{3,})$)", lines[i + 1].strip())
+               and not KEY_LINE.match(lines[i + 1].strip())
                and "|" not in lines[i + 1]
                and not CHIP_ONLY.match(lines[i + 1].strip())):
             i += 1
@@ -404,6 +437,8 @@ def main() -> int:
     ap.add_argument("input", help="markdown file to convert")
     ap.add_argument("-o", "--output", help="output html path (default: input with .html)")
     ap.add_argument("--title", help="page title (default: first H1 of the markdown)")
+    ap.add_argument("--lang", choices=["zh", "en"],
+                    help="language of the HTML chrome (default: auto-detect from the markdown)")
     args = ap.parse_args()
 
     src = Path(args.input).expanduser()
@@ -419,6 +454,13 @@ def main() -> int:
     template = (SKILL_ROOT / "assets/template.html").read_text(encoding="utf-8")
     h2c = (SKILL_ROOT / "assets/html2canvas.min.js").read_text(encoding="utf-8")
     content = render_blocks(rest, src.parent)
+
+    # CJK density decides the chrome language: a Chinese report is ~40% CJK,
+    # an English one near 0% (the odd Chinese term doesn't flip it).
+    lang = args.lang or ("zh" if len(CJK.findall(md)) * 20 > len(md) else "en")
+    if lang == "en":
+        for zh, en in EN_UI:
+            template = template.replace(zh, en)
 
     page = (template
             .replace("{{TITLE}}", html.escape(title))
