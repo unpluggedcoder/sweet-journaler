@@ -17,18 +17,36 @@ The invariant that matters most: **markdown first, user confirms, HTML last.**
 The journal is an outward-facing artifact the user pastes into review tools —
 never publish (write the HTML for) content the user hasn't approved.
 
-## Step 0 — Journal owner (first run only)
+## Step 0 — Confirm output language and journal owner (first run only)
 
-Read `~/work_journals/config.json` (create the dir if needed). If it has an
-`author`, use it. If the file or key is missing, ask the user once for the
-journal owner/author name, then save it:
+Read `~/work_journals/config.json` (create the directory if needed). On the
+**first skill invocation**, determine the language of the user's triggering
+message and use it as the default output language. Ask the user to explicitly
+confirm it before scraping or drafting — for example, `I detected English;
+shall I generate the journal in English?` or `检测到中文，日报将使用中文输出，是否确认？`.
+The user may choose another language. Do not infer a later language switch
+from an ordinary conversational reply: use the confirmed setting until the
+user asks to change it.
+
+Persist the confirmed `output_language` alongside `author`. If either key is
+missing, ask only for that missing value; when both are missing, combine the
+two questions in one concise first-run message:
 
 ```json
-{"author": "****"}
+{"author": "****", "output_language": "zh-CN"}
 ```
 
-Every journal carries `作者：{author}` as the first line under the H1 — the
-renderer shows it top-left in the hero band with an avatar. When testing with
+Use the selected language for all report prose, headings, chips, metadata and
+chat confirmation prompts. Keep source names, repository names, filenames and
+technical identifiers unchanged. The Chinese structures below are the canonical
+examples for `zh-CN`; for English use their direct equivalents (for example
+`# Daily Work Journal YYYY-MM-DD`, `## Highlights`, `## Next Steps`, and
+`# Monthly OKR Review · YYYY-MM`). Preserve the same information hierarchy and
+Markdown-first confirmation flow in every language.
+
+Every journal carries a localized author line as the first line under the H1 —
+`作者：{author}` in Chinese and `Author: {author}` in English. The renderer
+shows it top-left in the hero band with an avatar. When testing with
 a sandboxed journal root, the config lives in that sandbox root instead.
 
 ## Step 1 — Establish the period
@@ -245,7 +263,7 @@ being force-fitted or dropped.
 
 ## Step 5 — Content style
 
-- Chinese prose; keep technical terms verbatim (`vLLM`, `structured decoding`,
+- Write in the confirmed `output_language`; keep technical terms verbatim (`vLLM`, `structured decoding`,
   repo/file/model names).
 - **每一项 1-2 句话说完。** 领导是扫读的：一句结论 + 一句量化收益/价值即可；
   需要第三句时，它多半是不该出现的实现细节。宁可少写一句，不要多写一行。
