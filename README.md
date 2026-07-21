@@ -10,8 +10,9 @@ English ｜ [简体中文](README_CN.md)
 
 </div>
 
-> Claude Code, Cursor and Copilot watched every minute of your workday.
-> They sat through the whole livestream — why are *you* still writing the recap?
+> I had AI write a Skill that scrapes my vibe-coding conversation logs and sums them up into the day's (or month's) work progress — triggered with something like "summarize today's work log".
+> I expected a simple, routine productivity win, but soon found that journaling itself is a picky craft: different readers (usually your boss) call for different content in what you "record" (read: report).
+> So I added one rather subtle 🍬 knob — and that's how this Skill came to be.
 
 ## What is this
 
