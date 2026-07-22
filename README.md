@@ -54,7 +54,7 @@ npx skills add unpluggedcoder/sweet-journaler
 **Manual install**: clone into your tool's skills directory, e.g. for Claude Code:
 
 ```bash
-git clone https://github.com/unpluggedcoder/sweet-journaler.git ~/.claude/skills/work-journaler
+git clone https://github.com/unpluggedcoder/sweet-journaler.git ~/.claude/skills/sweet-journaler
 ```
 
 | Tool | Personal | Project |

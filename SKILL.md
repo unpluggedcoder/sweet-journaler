@@ -1,5 +1,5 @@
 ---
-name: work-journaler
+name: sweet-journaler
 description: Generate or update work journals (工作日报 / 月度 OKR 月报) by mining the user's local AI-coding conversation histories (Claude Code, Qoder, Cursor, Copilot, Aone Copilot, Codex, Cline, OpenCode) and producing confirmed Markdown + styled HTML reports under ~/work_journals. Supports a 甜度/含糖量 (sweetness) knob — 无糖/三分糖/半糖/正常糖/双份糖 — controlling how abstract vs. detailed the reporting reads. Reports are written in 中文 or English; the output language is confirmed with the user on first run, defaulting to the language the skill was triggered in. Use this skill whenever the user asks to generate, write, or update a work journal, daily report, work log, monthly report, or OKR progress — including phrases like 生成日报 / 写日报 / 更新工作日志 / 月报 / OKR 月报 / 无糖日报 / work journal / daily journal / monthly OKR, even if they don't mention files or formats.
 ---
 
